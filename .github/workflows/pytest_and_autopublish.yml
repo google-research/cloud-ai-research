@@ -37,7 +37,7 @@ jobs:
     # * Repo is self (prevents running from forks)
     # * Branch is `main`
     if: |
-      github.repository == 'google-research/cloud_ai_research'
+      github.repository == 'google-research/cloud-ai-research'
       && github.ref == 'refs/heads/main'
     needs: pytest-job  # Only publish after tests are successful
     runs-on: ubuntu-latest

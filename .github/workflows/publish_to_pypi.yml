@@ -1,0 +1,47 @@
+name: Publish to PyPi
+
+# Only trigger the workflow manually (e.g. when deps changes)
+on: workflow_dispatch
+
+jobs:
+  pypi-publish:
+    name: Upload release to PyPI
+    # Only try to publish if:
+    # * Repo is self (prevents running from forks)
+    # * Branch is `main`
+    if: |
+      github.repository == 'google-research/cloud-ai-research'
+      && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/google-cloud-ai-research
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+    timeout-minutes: 30
+    steps:
+    # retrieve your distributions here
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        parse-changelog: true
+
+  # # Publish when version is increased
+  # publish-job:
+  #   # Only try to publish if:
+  #   # * Repo is self (prevents running from forks)
+  #   # * Branch is `main`
+  #   if: |
+  #     github.repository == 'google-research/cloud-ai-research'
+  #     && github.ref == 'refs/heads/main'
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #   timeout-minutes: 30
+
+  #   steps:
+  #   # Publish the package (if local `__version__` > pip version)
+  #   - uses: etils-actions/pypi-auto-publish@v1.5.2
+  #     with:
+  #       pypi-token: ${{ secrets.PYPI_API_TOKEN }}
+  #       parse-changelog: true

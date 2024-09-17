@@ -4,7 +4,7 @@
 name = "cloud_ai_research"
 description = "A collection of Cloud AI Research tools that we want to share with the broader community."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 license = {file = "LICENSE"}
 authors = [{name = "cloud-ai-research authors", email="cloud-ai-research-automated@google.com"}]
 classifiers = [  # List of https://pypi.org/classifiers/
@@ -21,9 +21,9 @@ dependencies = []
 dynamic = ["version"]
 
 [project.urls]
-homepage = "https://github.com/google-research/cloud_ai_research"
-repository = "https://github.com/google-research/cloud_ai_research"
-changelog = "https://github.com/google-research/cloud_ai_research/blob/main/CHANGELOG.md"
+homepage = "https://github.com/google-research/cloud-ai-research"
+repository = "https://github.com/google-research/cloud-ai-research"
+changelog = "https://github.com/google-research/cloud-ai-research/blob/main/CHANGELOG.md"
 # documentation = ""
 
 [project.optional-dependencies]
