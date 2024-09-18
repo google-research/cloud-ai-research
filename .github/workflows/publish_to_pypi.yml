@@ -1,9 +1,35 @@
-name: Publish to PyPi
+name: Publish to TestPyPi and PyPi
 
 # Only trigger the workflow manually (e.g. when deps changes)
 on: workflow_dispatch
 
 jobs:
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the latest version of the repo and set up Python.
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+    # Install build dependencies, build from source and store the distribution packages.
+    - name: Install pypa/build
+      run: >-
+        python3 -m
+        pip install
+        build
+        --user
+    - name: Build a binary wheel and a source tarball
+      run: python3 -m build
+    - name: Store the distribution packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+
   pypi-publish:
     name: Upload release to PyPI
     # Only try to publish if:
@@ -12,6 +38,9 @@ jobs:
     if: |
       github.repository == 'google-research/cloud-ai-research'
       && github.ref == 'refs/heads/main'
+    needs:
+      - pytest-job  # Only publish after tests are successful
+      - build
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -21,10 +50,46 @@ jobs:
     timeout-minutes: 30
     steps:
     # retrieve your distributions here
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
     - name: Publish package distributions to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        parse-changelog: true
+        verify-metadata: true
+
+  testpypi-publish:
+    name: Upload release to TestPyPI
+    # Only try to publish if:
+    # * Repo is self (prevents running from forks)
+    # * Branch is `main`
+    if: |
+      github.repository == 'google-research/cloud-ai-research'
+      && github.ref == 'refs/heads/main'
+    needs:
+      - pytest-job  # Only publish after tests are successful
+      - build
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/google-cloud-ai-research
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+    timeout-minutes: 30
+    steps:
+    # retrieve your distributions here
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+    - name: Publish package distributions to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        verify-metadata: true
 
   # # Publish when version is increased
   # publish-job:
